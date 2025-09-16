@@ -1,18 +1,24 @@
-import { useState } from 'react'
-import './App.css'
-import { BrowserRouter } from 'react-router-dom'
-import HomePage from './pages/home'
+// src/App.tsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/home.tsx";  // your Home.tsx
+import ResultsPage from "./components/Results.tsx"; // new page we’ll make
+import QuestionnairePage from "./components/Questionnaire.tsx"; // optional later
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <BrowserRouter>
-        <HomePage />
-      </BrowserRouter>
-    </>
-  )
+    <Router>
+      <Routes>
+        {/* Default homepage */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Questionnaire */}
+        <Route path="/questionnaire" element={<QuestionnairePage />} />
+
+        {/* Results */}
+        <Route path="/results" element={<ResultsPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

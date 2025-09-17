@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { AnimeItem } from "../pages/home";
+import '../App.css';
 
 interface Props {
   onAddAnime: (name: string, image: string) => void;
@@ -54,24 +54,19 @@ export default function AnimeInput({ onAddAnime }: Props) {
   };
 
   return (
-    <div className="relative mt-4 w-full">
+    <div className="anime-input-container">
       <input
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Enter anime name"
-        className="border rounded px-4 py-2 w-full"
+        placeholder="Enter Anime Name"
       />
 
       {suggestions.length > 0 && (
-        <ul className="absolute bg-white border mt-1 w-full z-10 max-h-40 overflow-y-auto rounded shadow">
+        <ul className="anime-suggestions">
           {suggestions.map((s) => (
-            <li
-              key={s.id}
-              className="flex items-center px-2 py-1 hover:bg-gray-200 cursor-pointer gap-2"
-              onClick={() => handleSelect(s)}
-            >
-              <img src={s.coverImage.large} alt={s.title.romaji} className="w-5 h-11 object-cover rounded" />
+            <li key={s.id} onClick={() => handleSelect(s)}>
+              <img src={s.coverImage.large} alt={s.title.romaji} />
               <span>{s.title.english || s.title.romaji}</span>
             </li>
           ))}

@@ -40,3 +40,220 @@
 .read-the-docs {
   color: #888;
 }
+
+.anime-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* spacing between items */
+}
+
+.anime-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: linear-gradient(90deg, #f3e8ff, #e0e7ff); /* purple to indigo gradient */
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.anime-list li:hover {
+  background: linear-gradient(90deg, #e9d5ff, #c7d2fe);
+}
+
+.anime-list img {
+  width: 64px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.anime-list span {
+  font-weight: 500;
+  color: #1f2937; /* dark gray text */
+}
+
+/* results page styles*/
+
+.results-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  background-color: #f9fafb; /* light gray background */
+}
+
+.results-page h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2563eb; /* blue-600 */
+  margin-bottom: 16px;
+}
+
+.results-page h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Card-style list like AnimeList */
+.results-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* space between items */
+}
+
+.results-list li {
+  padding: 12px;
+  background: linear-gradient(90deg, #f3e8ff, #e0e7ff); /* purple → indigo */
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-weight: 500;
+  color: #1f2937; /* dark gray text */
+  transition: all 0.3s ease;
+}
+
+.results-list li:hover {
+  background: linear-gradient(90deg, #e9d5ff, #c7d2fe); /* hover gradient */
+}
+
+/* AnimeList CSS */
+
+.anime-input-wrapper {
+  width: 100%; /* ensure wrapper stretches */
+}
+
+.anime-input-container {
+  position: relative; /* dropdown will be relative to this */
+  width: 100%;
+}
+
+.anime-input-container input {
+  width: 100%; /* full width input */
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  font-size: 1rem;
+}
+
+.anime-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0px;
+  max-height: 160px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.anime-suggestions li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.anime-suggestions li:hover {
+  background: linear-gradient(90deg, #f3e8ff, #e0e7ff);
+}
+
+.anime-suggestions img {
+  width: 40px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.anime-suggestions span {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Questionnaire styles */
+.questionnaire-container {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.questionnaire-container h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #2563eb;
+}
+
+.question-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 16px;
+  background: #f5f7fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.question-card img {
+  width: 100px;
+  height: 125px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.question-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.question-content p {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.question-content input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.question-content input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}

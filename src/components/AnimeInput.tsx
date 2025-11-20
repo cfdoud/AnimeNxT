@@ -1,15 +1,11 @@
 import { useState, useEffect } from "react";
-import type { AnimeItem } from "../pages/home";
-
+import type { AnimeItem } from "../pages/home";   
+import type { AniListMedia } from "../types";
 interface Props {
-  onAddAnime: (name: string, image: string) => void;
+  // onAddAnime: (name: string, image: string) => void;
+  onAddAnime: (anime: AniListMedia) => void;
 }
 
-interface AniListMedia {
-  id: number;
-  title: { romaji: string; english?: string };
-  coverImage: { large: string };
-}
 
 export default function AnimeInput({ onAddAnime }: Props) {
   const [input, setInput] = useState("");
@@ -29,6 +25,11 @@ export default function AnimeInput({ onAddAnime }: Props) {
               id
               title { romaji english }
               coverImage { large }
+              genres
+              tags { name }
+              description(asHtml: false)
+              recommendations { edges { node { mediaRecommendation { id title { romaji english } coverImage { large } } } } }
+              averageScore
             }
           }
         }
@@ -41,6 +42,7 @@ export default function AnimeInput({ onAddAnime }: Props) {
       });
 
       const data = await res.json();
+      console.log("AniList API result:", data); 
       setSuggestions(data.data.Page.media);
     };
 
@@ -48,7 +50,7 @@ export default function AnimeInput({ onAddAnime }: Props) {
   }, [input]);
 
   const handleSelect = (anime: AniListMedia) => {
-    onAddAnime(anime.title.english || anime.title.romaji, anime.coverImage.large);
+    onAddAnime(anime);
     setInput("");
     setSuggestions([]);
   };

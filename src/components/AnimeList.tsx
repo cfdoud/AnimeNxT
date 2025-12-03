@@ -1,9 +1,8 @@
 import type { AnimeItem } from "../pages/home";
 import '../App.css';
 
-
 interface Props {
-  animeList: AniListMedia[];
+  animeList: AnimeItem[];
 }
 
 export default function AnimeList({ animeList }: Props) {
@@ -12,20 +11,25 @@ export default function AnimeList({ animeList }: Props) {
   return (
     <div className="mt-4 w-full">
       <h2 className="text-sm font-semibold mb-2">Anime You Added:</h2>
-      <ul className="list-none">
-        {animeList.map((anime, i) => (
-          <li 
-            key={i} 
-            className="flex items-center gap-2 mb-2 bg-white p-2 rounded shadow"
-          >
-          <img  
-            src={anime.coverImage.large} 
-            alt={anime.title.romaji} 
-            className="w-5 h-5 rounded" 
-          />
-            <span>{anime.title.english || anime.title.romaji}</span>
-          </li>
-        ))}
+      <ul className="anime-list list-none">
+        {animeList.map((anime, i) => {
+          const imageSrc = anime.coverImage?.large || anime.image || "";
+          const titleText = anime.title?.english || anime.title?.romaji || anime.name || "Untitled";
+
+          return (
+            <li 
+              key={i} 
+              className="flex items-center gap-2 mb-2 bg-white p-2 rounded shadow hover:bg-gray-50 transition"
+            >
+              <img  
+                src={imageSrc} 
+                alt={titleText} 
+                className="w-10 h-10 rounded object-cover" 
+              />
+              <span className="text-gray-800">{titleText}</span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

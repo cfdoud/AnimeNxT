@@ -13,8 +13,8 @@ export default function AnimeList({ animeList }: Props) {
       <h2 className="text-sm font-semibold mb-2">Anime You Added:</h2>
       <ul className="anime-list list-none">
         {animeList.map((anime, i) => {
-          const imageSrc = anime.coverImage?.large || anime.image || "";
-          const titleText = anime.title?.english || anime.title?.romaji || anime.name || "Untitled";
+          const imageSrc = typeof anime.coverImage === "string" ? anime.coverImage : anime.coverImage?.large || "";
+          const titleText = typeof anime.title === "string" ? anime.title : (typeof anime.title?.english === "string" ? anime.title.english : typeof anime.title?.romaji === "string" ? anime.title.romaji : "Untitled");
 
           return (
             <li 

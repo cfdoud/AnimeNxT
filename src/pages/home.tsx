@@ -2,7 +2,15 @@ import { useState } from "react";
 import AnimeInput from "../components/AnimeInput";
 import AnimeList from "../components/AnimeList";
 import Questionnaire from "../components/Questionaire";
+import Results from "../components/Results";
 import type { AniListMedia } from "../types";
+ 
+import {
+  recommendFromTop5,
+  type BasicAnime,
+  type RankedFavorite,
+  type Recommendation,
+} from "../utils/recommender";
 
 
 // export type AnimeItem = {
@@ -14,6 +22,7 @@ export type AnimeItem = AniListMedia;
 export default function HomePage() {
   const [animeList, setAnimeList] = useState<AnimeItem[]>([]);
   const [answers, setAnswers] = useState<{ [anime: string]: string }>({});
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   const addAnime = (anime: AnimeItem) => {
     if (!animeList.find((a) => a.id === anime.id)) {
@@ -21,9 +30,81 @@ export default function HomePage() {
     }
   };
 
-  const saveAnswer = (anime: string, answer: string) => {
-    setAnswers({ ...answers, [anime]: answer });
-  };
+  function toBasicAnimeFromMedia(media: any): BasicAnime {
+    const title =
+      media.title?.english ||
+      media.title?.romaji ||
+      typeof media?.title === "string"
+        ? media.title
+        : "Untitled";
+    return {
+      id: media.id,
+      title,
+      genres: media.genres ?? [],
+      tags: (media.tags ?? []).map((t: any) => t.name),
+      averageScore: media.averageScore ?? null,
+      popularity: media.popularity ?? null,
+    };
+
+  }
+
+    function buildFavorites(list: AnimeItem[]): RankedFavorite[] {
+    if (list.length !== 5) {
+      throw new Error("Need exactly 5 anime selected to run the recommender.");
+    }
+
+    return list.map((media, index) => ({
+      anime: toBasicAnimeFromMedia(media),
+      // for now, order in the list = rank (1 strongest → 5 weakest)
+      rank: (index + 1) as 1 | 2 | 3 | 4 | 5,
+    }));
+  }
+
+  // 🔹 build candidates from AniList's recommendations field
+  function buildCandidatesFromPicked(list: AnimeItem[]): BasicAnime[] {
+    const map = new Map<number, BasicAnime>();
+
+    for (const media of list) {
+      const edges = media.recommendations?.edges ?? [];
+
+      for (const edge of edges) {
+        const rec = edge.node?.mediaRecommendation;
+        if (!rec) continue;
+
+        // skip if it's one of the 5 favorites
+        if (list.some((p) => p.id === rec.id)) continue;
+
+        const basic = toBasicAnimeFromMedia(rec);
+        map.set(basic.id, basic); // Map dedupes by id
+      }
+    }
+
+    return Array.from(map.values());
+  }
+
+  const runRecommendations = () => {
+  if (animeList.length !== 5) {
+    alert("Please add exactly 5 anime first (you have " + animeList.length + ").");
+    return;
+  }
+
+  const favorites = buildFavorites(animeList);
+  const candidates = buildCandidatesFromPicked(animeList);
+
+  if (candidates.length === 0) {
+    alert("AniList didn't return any recommendation candidates. Try different anime.");
+    return;
+  }
+
+  const recs = recommendFromTop5(favorites, candidates, { limit: 10 });
+  console.log("Recs:", recs);
+  setRecommendations(recs);
+};
+
+
+  // const saveAnswer = (anime: string, answer: string) => {
+  //   setAnswers({ ...answers, [anime]: answer });
+  // };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6">
@@ -43,9 +124,9 @@ export default function HomePage() {
         <AnimeInput onAddAnime={addAnime} />
 
         {/* List of anime with images */}
-        <AnimeList animeList={animeList} />
+        <AnimeList animeList={animeList} onRecommend={runRecommendations} />
 
-       
+       <Results recommendations={recommendations} />
       
       </main>
     </div>

@@ -20,7 +20,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
 
         {/* Questionnaire */}
-        <Route
+        {/* <Route
           path="/questionnaire"
           element={
             <QuestionnairePage
@@ -29,10 +29,10 @@ function App() {
               saveAnswer={saveAnswer}
             />
           }
-        />
+        /> */}
 
         {/* Results */}
-        <Route path="/results" element={<ResultsPage />} />
+       
       </Routes>
     </Router>
   );

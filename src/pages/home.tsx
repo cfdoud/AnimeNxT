@@ -1,20 +1,23 @@
 import { useState } from "react";
 import AnimeInput from "../components/AnimeInput";
 import AnimeList from "../components/AnimeList";
-import Questionnaire from "../components/Questionnaire";
+import Questionnaire from "../components/Questionaire";
+import type { AniListMedia } from "../types";
 
-export type AnimeItem = {
-  name: string;
-  image: string;
-};
+
+// export type AnimeItem = {
+//   name: string;
+//   image: string;
+// };
+export type AnimeItem = AniListMedia;
 
 export default function HomePage() {
   const [animeList, setAnimeList] = useState<AnimeItem[]>([]);
   const [answers, setAnswers] = useState<{ [anime: string]: string }>({});
 
-  const addAnime = (name: string, image: string) => {
-    if (!animeList.find((a) => a.name === name)) {
-      setAnimeList([...animeList, { name, image }]);
+  const addAnime = (anime: AnimeItem) => {
+    if (!animeList.find((a) => a.id === anime.id)) {
+      setAnimeList([...animeList, anime]);
     }
   };
 
@@ -42,14 +45,8 @@ export default function HomePage() {
         {/* List of anime with images */}
         <AnimeList animeList={animeList} />
 
-        {/* Questionnaire */}
-        {animeList.length > 0 && (
-          <Questionnaire
-            animeList={animeList}
-            saveAnswer={saveAnswer}
-            answers={answers}
-          />
-        )}
+       
+      
       </main>
     </div>
   );

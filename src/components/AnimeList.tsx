@@ -15,18 +15,8 @@ export default function AnimeList({ animeList, onRecommend }: Props) {
       <h2 className="text-sm font-semibold mb-2">Anime You Added:</h2>
       <ul className="anime-list list-none">
         {animeList.map((anime, i) => {
-          const imageSrc =
-            typeof anime.coverImage === "string"
-            ? anime.coverImage 
-            : anime.coverImage?.large || "";
-          const titleText = 
-            typeof anime.title === "string" 
-            ? anime.title 
-            : (typeof anime.title?.english === "string"
-            ? anime.title.english 
-            : typeof anime.title?.romaji === "string" 
-            ? anime.title.romaji 
-            : "Untitled");
+          const imageSrc = typeof anime.coverImage === "string" ? anime.coverImage : anime.coverImage?.large || "";
+          const titleText = typeof anime.title === "string" ? anime.title : (typeof anime.title?.english === "string" ? anime.title.english : typeof anime.title?.romaji === "string" ? anime.title.romaji : "Untitled");
 
           return (
             <li 
@@ -43,11 +33,6 @@ export default function AnimeList({ animeList, onRecommend }: Props) {
           );
         })}
       </ul>
-      <div>
-        <button onClick={onRecommend} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-          Get Recommendations
-        </button>
-      </div>
     </div>
   );
 }

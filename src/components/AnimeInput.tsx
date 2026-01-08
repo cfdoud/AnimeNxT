@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import type { AnimeItem } from "../pages/home";   
 import type { AniListMedia } from "../types";
-
 interface Props {
   onAddAnime: (anime: AniListMedia) => void;
 }

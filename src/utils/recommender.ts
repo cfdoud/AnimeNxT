@@ -1,9 +1,8 @@
-<<<<<<< Updated upstream
-=======
 export interface BasicAnime {
     id: number;
     title: string;
     genres: string[];
+    coverImage: string;
     tags: string[];
     averageScore?: number | null;
     popularity?: number | null;
@@ -209,4 +208,3 @@ export function recommendFromTop5(
   // 5) return top N (default 10)
   return results.slice(0, options?.limit ?? 10);
 }
->>>>>>> Stashed changes

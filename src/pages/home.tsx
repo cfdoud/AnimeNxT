@@ -20,6 +20,11 @@ import {
 export type AnimeItem = AniListMedia;
 
 export default function HomePage() {
+  
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("darkMode") === "true";
+
+  });
   const [animeList, setAnimeList] = useState<AnimeItem[]>([]);
   const [answers, setAnswers] = useState<{ [anime: string]: string }>({});
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -37,11 +42,13 @@ export default function HomePage() {
       typeof media?.title === "string"
         ? media.title
         : "Untitled";
+    const coverImage = media?.coverImage?.large || "";
     return {
       id: media.id,
       title,
       genres: media.genres ?? [],
       tags: (media.tags ?? []).map((t: any) => t.name),
+      coverImage,
       averageScore: media.averageScore ?? null,
       popularity: media.popularity ?? null,
     };
@@ -108,11 +115,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6">
-      <header className="w-full p-4 bg-blue-600 text-white text-center text-2xl font-bold">
+      <header className="w-full p-4 bg-blue-600 text-black text-center text-2xl font-bold">
         Anime Recommender
       </header>
 
-      <main className="flex flex-col items-center mt-6 w-full max-w-2xl">
+      <main className="flex flex-col items-center mt-6 w-full max-w-6xl">
         <h1 className="text-4xl font-bold text-gray-800 text-center">
           Find Your Next Favorite Anime
         </h1>
@@ -121,12 +128,24 @@ export default function HomePage() {
         </p>
 
         {/* Input */}
-        <AnimeInput onAddAnime={addAnime} />
+        
 
         {/* List of anime with images */}
-        <AnimeList animeList={animeList} onRecommend={runRecommendations} />
+        <div className="w-full mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* LEFT: input + picked anime */}
+          <div className="bg-black rounded-xl shadow p-4">
+            <AnimeInput onAddAnime={addAnime} />
+            <AnimeList animeList={animeList} onRecommend={runRecommendations} />
+          </div>
 
-       <Results recommendations={recommendations} />
+          {/* RIGHT: recommendations */}
+          <div className="bg-white rounded-xl shadow p-4 md:sticky md:top-6 h-fit">
+            <Results recommendations={recommendations} />
+          </div>
+        </div>
+
+
+      
       
       </main>
     </div>

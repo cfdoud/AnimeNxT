@@ -3,12 +3,8 @@ import '../App.css';
 
 
 interface Props {
-<<<<<<< Updated upstream
-  animeList: AniListMedia[];
-=======
   animeList: AnimeItem[];
   onRecommend: () => void;
->>>>>>> Stashed changes
 }
 
 export default function AnimeList({ animeList, onRecommend }: Props) {
@@ -17,22 +13,6 @@ export default function AnimeList({ animeList, onRecommend }: Props) {
   return (
     <div className="mt-4 w-full">
       <h2 className="text-sm font-semibold mb-2">Anime You Added:</h2>
-<<<<<<< Updated upstream
-      <ul className="list-none">
-        {animeList.map((anime, i) => (
-          <li 
-            key={i} 
-            className="flex items-center gap-2 mb-2 bg-white p-2 rounded shadow"
-          >
-          <img  
-            src={anime.coverImage.large} 
-            alt={anime.title.romaji} 
-            className="w-5 h-5 rounded" 
-          />
-            <span>{anime.title.english || anime.title.romaji}</span>
-          </li>
-        ))}
-=======
       <ul className="anime-list list-none">
         {animeList.map((anime, i) => {
           const imageSrc =
@@ -62,7 +42,6 @@ export default function AnimeList({ animeList, onRecommend }: Props) {
             </li>
           );
         })}
->>>>>>> Stashed changes
       </ul>
       <div>
         <button onClick={onRecommend} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">

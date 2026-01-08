@@ -1,56 +1,76 @@
-import "../App.css";
+import { useState } from "react";
 import type { Recommendation } from "../utils/recommender";
-
+import { Heart, HeartFill } from "react-bootstrap-icons"; 
 interface ResultsProps {
   recommendations: Recommendation[];
 }
 
 export default function Results({ recommendations }: ResultsProps) {
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+
+  const toggleFavorite = (id: number) => {
+    setFavorites((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      return newSet;
+    });
+  };
+
   if (!recommendations.length) return null;
 
   return (
-    
-    <section className="mt-8">
-      <h2 className="text-2xl font-semibold mb-4">
-        Recommended for you
-      </h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="mt-6 w-full">
+      <h3 className="text-xl font-semibold mb-2 text-textPrimary dark:text-textPrimary">
+        Recommended for you:
+      </h3>
+      <ul className="list-none flex flex-col gap-4">
         {recommendations.map((r) => {
-          const rawTitle = r.anime.title as any;
           const titleText =
-            typeof rawTitle === "string"
-              ? rawTitle
-              : rawTitle?.english ||
-                rawTitle?.romaji ||
-                "Untitled";
+            typeof r.anime.title === "string"
+              ? r.anime.title
+              : r.anime.title?.english || r.anime.title?.romaji || "Untitled";
+
+          const isFavorite = favorites.has(r.anime.id);
 
           return (
-            <div
+            <li
               key={r.anime.id}
-              className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:scale-[1.02] transition"
+              className="flex items-center justify-between gap-3 p-3 rounded-lg bg-white dark:bg-cardDark shadow hover:shadow-lg transition"
             >
-              {r.anime.coverImage && (
-                <img
-                  src={r.anime.coverImage}
-                  alt={titleText}
-                  className="w-full h-48 object-cover"
-                />
-              )}
-
-              <div className="p-3">
-                <h3 className="font-medium text-slate-100">
-                  {titleText}
-                </h3>
-
-                <p className="text-sm text-slate-400 mt-1">
-                  Match score: {r.score.toFixed(2)}
-                </p>
+              <div className="flex items-center gap-3">
+                {r.anime.coverImage && (
+                  <img
+                    src={r.anime.coverImage}
+                    alt={titleText}
+                    className="w-12 h-12 object-cover rounded"
+                  />
+                )}
+                <div className="flex flex-col">
+                  <span className="font-medium text-gray-900 dark:text-textPrimary">
+                    {titleText}
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-textSecondary">
+                    Score: {r.score.toFixed(3)}
+                  </span>
+                </div>
               </div>
-            </div>
+
+              {/* Favorite toggle */}
+              <button
+                onClick={() => toggleFavorite(r.anime.id)}
+                className="p-1 rounded-full hover:bg-accentHover transition"
+              >
+                {isFavorite ? (
+                  <HeartFill className="text-error w-5 h-5" />
+                ) : (
+                  <Heart className="text-gray-400 dark:text-textSecondary w-5 h-5" />
+                )}
+              </button>
+            </li>
           );
         })}
-      </div>
-    </section>
+      </ul>
+    </div>
   );
 }

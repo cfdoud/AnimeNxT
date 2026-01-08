@@ -5,26 +5,33 @@ interface Props {
   onAddAnime: (anime: AniListMedia) => void;
 }
 
+function useDebounce<T>(value: T, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+
 export default function AnimeInput({ onAddAnime }: Props) {
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<AniListMedia[]>([]);
 
-  useEffect(() => {
-    // Split input into words and only keep words >= 3 characters
-    const validWords = input
-      .trim()
-      .split(/\s+/)
-      .filter(word => word.length >= 3);
+  // Debounced input to avoid unnecessary API calls
+  const debouncedInput = useDebounce(input, 300);
 
-    if (validWords.length === 0) {
+  useEffect(() => {
+    const searchTerm = debouncedInput.trim();
+    if (!searchTerm) {
       setSuggestions([]);
       return;
     }
-
-    // Use the last valid word for the search
-    const searchTerm = validWords[validWords.length - 1];
-
-    const debounce = setTimeout(async () => {
+    console.log("Searching AniList for:", searchTerm);
+    // Fetch AniList results
+    const fetchResults = async () => {
       try {
         const query = `
           query ($search: String) {
@@ -34,10 +41,19 @@ export default function AnimeInput({ onAddAnime }: Props) {
                 title { romaji english }
                 coverImage { large }
                 genres
-                tags { name }
-                description(asHtml: false)
-                recommendations { edges { node { mediaRecommendation { id title { romaji english } coverImage { large } } } } }
-                averageScore
+                recommendations { 
+                  edges { 
+                    node { 
+                      mediaRecommendation { 
+                        id 
+                        title { romaji english } 
+                        coverImage { large }
+                        averageScore
+                        popularity
+                      } 
+                    } 
+                  } 
+                }
               }
             }
           }
@@ -46,30 +62,19 @@ export default function AnimeInput({ onAddAnime }: Props) {
 
         const res = await fetch("/anilist", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({ query, variables }),
         });
-
         const data = await res.json();
-        console.log("AniList API result:", data);
-
-        if (!data.data || data.errors) {
-          setSuggestions([]);
-          return;
-        }
-
-        setSuggestions(data.data.Page.media);
+        setSuggestions(data.data?.Page?.media || []);
       } catch (err) {
         console.error("AniList fetch error:", err);
         setSuggestions([]);
       }
-    }, 300); // debounce 300ms
+    };
 
-    return () => clearTimeout(debounce);
-  }, [input]);
+    fetchResults();
+  }, [debouncedInput]);
 
   const handleSelect = (anime: AniListMedia) => {
     onAddAnime(anime);

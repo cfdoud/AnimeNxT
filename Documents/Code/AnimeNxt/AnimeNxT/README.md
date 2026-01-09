@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+# AnimeNxT
+Helps you find what anime to watch next
+=======
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -67,3 +71,4 @@ export default tseslint.config([
   },
 ])
 ```
+>>>>>>> 1665ddd (Initial commit of anime recommender project)

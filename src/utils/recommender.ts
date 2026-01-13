@@ -6,6 +6,7 @@ export interface BasicAnime {
     tags: string[];
     averageScore?: number | null;
     popularity?: number | null;
+    seasonYear?: number | null;
 }
 
 export interface RankedFavorite {
@@ -37,20 +38,47 @@ const RANK_WEIGHTS: Record<RankedFavorite["rank"], number> = {
   5: 0.2,
 };
 
+
+
+
 function buildTasteProfile(favorites: RankedFavorite[]): TasteProfile {
   const genreScore: Record<string, number> = {};
   const tagScore: Record<string, number> = {};
 
+  console.log("Building taste profile from favorites:", favorites);
+  console.log("genreScore before:", genreScore);
+  console.log("tagScore before:", tagScore);
+  console.log("Chippy)");
+
+
   for (const fav of favorites) {
-    const w = RANK_WEIGHTS[fav.rank];
+    console.log("Processing favorite:", [fav], "with rank weight:", RANK_WEIGHTS[fav.rank]);
+    const rank = fav.rank;
+    const w = RANK_WEIGHTS[rank];
     const anime = fav.anime;
+    console.log("Anime genres:", anime.genres, "tags:", anime.tags?.slice?.(0, 5));
 
-    for (const g of anime.genres ?? []) {
-      genreScore[g] = (genreScore[g] ?? 0) + w;
+    console.log("──────────────");
+    console.log(
+      `Processing favorite: "${anime.title}" | rank=${rank} | weight=${w}`
+    );
+
+    for (const genre of anime.genres ?? []) {
+      const before = genreScore[genre] ?? 0;
+      console.log(`Current score for genre before "${genre}": ${before.toFixed(2)}`);
+      const after = before + w;
+      console.log(`Updating score for genre "${genre}":  ${w.toFixed(2)} added`);
+
+      console.log(
+        `Genre "${genre}": ${before.toFixed(2)} + ${w.toFixed(2)} = ${after.toFixed(2)}`
+      );
+
+      genreScore[genre] = after;
     }
+  
 
-    for (const t of anime.tags ?? []) {
-      tagScore[t] = (tagScore[t] ?? 0) + w;
+    for (const tag of anime.tags ?? []) {
+      tagScore[tag] = (tagScore[tag] ?? 0) + w;
     }
   }
 

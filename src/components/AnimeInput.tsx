@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import type { AnimeItem } from "../pages/home";   
+// import type { AnimeItem } from "../pages/home";   
 import type { AniListMedia } from "../types";
+import { searchAnime } from "../api/anilist";
 interface Props {
   onAddAnime: (anime: AniListMedia) => void;
 }
@@ -29,51 +30,76 @@ export default function AnimeInput({ onAddAnime }: Props) {
       setSuggestions([]);
       return;
     }
+
     console.log("Searching AniList for:", searchTerm);
-    // Fetch AniList results
-    const fetchResults = async () => {
+
+    let cancelled = false;
+    
+    async function run() {
       try {
-        const query = `
-          query ($search: String) {
-            Page(perPage: 5) {
-              media(search: $search, type: ANIME) {
-                id
-                title { romaji english }
-                coverImage { large }
-                genres
-                recommendations { 
-                  edges { 
-                    node { 
-                      mediaRecommendation { 
-                        id 
-                        title { romaji english } 
-                        coverImage { large }
-                        averageScore
-                        popularity
-                      } 
-                    } 
-                  } 
-                }
-              }
-            }
-          }
-        `;
-        const variables = { search: searchTerm };
-
-        const res = await fetch("/anilist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ query, variables }),
-        });
-        const data = await res.json();
-        setSuggestions(data.data?.Page?.media || []);
+        const results = await searchAnime(searchTerm, 5);
+        if (!cancelled) setSuggestions(results);
       } catch (err) {
-        console.error("AniList fetch error:", err);
-        setSuggestions([]);
+        console.error("AniList search error:", err);
+        if (!cancelled) setSuggestions([]);
       }
-    };
+    }
 
-    fetchResults();
+    run();
+    // Fetch AniList results
+    // const fetchResults = async () => {
+    //   try {
+    //     const query = `
+    //       query ($search: String) {
+    //         Page(perPage: 5) {
+    //           media(search: $search, type: ANIME) {
+    //             id
+    //             coverImage {
+    //               large
+    //             }
+    //             title {
+    //               romaji
+    //               english
+    //             }
+
+    //             relations {
+    //               edges {
+    //                 relationType
+    //                 node {
+    //                   id
+    //                   title {
+    //                     romaji
+    //                     english
+    //                   }
+    //                   format
+    //                   season
+    //                   seasonYear
+    //                 }
+    //               }
+    //             }
+    //           }
+    //         }
+    //       }
+    //     `;
+    //     const variables = { search: searchTerm };
+
+    //     const res = await fetch("/anilist", {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json", Accept: "application/json" },
+    //       body: JSON.stringify({ query, variables }),
+    //     });
+    //     const data = await res.json();
+    //     setSuggestions(data.data?.Page?.media || []);
+    //   } catch (err) {
+    //     console.error("AniList fetch error:", err);
+    //     setSuggestions([]);
+    //   }
+    // };
+
+    // fetchResults();
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedInput]);
 
   const handleSelect = (anime: AniListMedia) => {

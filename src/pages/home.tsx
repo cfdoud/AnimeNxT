@@ -1,9 +1,11 @@
 import { useState } from "react";
 import AnimeInput from "../components/AnimeInput";
 import AnimeList from "../components/AnimeList";
-import Questionnaire from "../components/Questionaire";
+// import Questionnaire from "../components/Questionaire";
 import Results from "../components/Results";
 import type { AniListMedia } from "../types";
+
+import { fetchCandidatePool } from "../api/anilist";
  
 import {
   recommendFromTop5,
@@ -39,9 +41,7 @@ export default function HomePage() {
     const title =
       media.title?.english ||
       media.title?.romaji ||
-      typeof media?.title === "string"
-        ? media.title
-        : "Untitled";
+      (typeof media?.title === "string" ? media.title: "Untitled");
     const coverImage = media?.coverImage?.large || "";
     return {
       id: media.id,
@@ -67,36 +67,70 @@ export default function HomePage() {
     }));
   }
 
-  // 🔹 build candidates from AniList's recommendations field
-  function buildCandidatesFromPicked(list: AnimeItem[]): BasicAnime[] {
+  
+
+  function hasPrequel(media: any): boolean {
+    const edges = media?.relations?.edges ?? [];
+    
+    return edges.some(
+      (e: any) => e?.relationType === "PREQUEL"
+    );
+  }
+
+
+
+  function buildCandidatesFromPool(pool: AniListMedia[], favorites: AnimeItem[]): BasicAnime[] {
+    const favIds = new Set(favorites.map((f) => f.id));
     const map = new Map<number, BasicAnime>();
 
-    for (const media of list) {
-      const edges = media.recommendations?.edges ?? [];
+    for (const m of pool) {
+      if (!m) continue;
+      if (favIds.has(m.id)) continue;
 
-      for (const edge of edges) {
-        const rec = edge.node?.mediaRecommendation;
-        if (!rec) continue;
+      if (hasPrequel(m)) continue;
 
-        // skip if it's one of the 5 favorites
-        if (list.some((p) => p.id === rec.id)) continue;
-
-        const basic = toBasicAnimeFromMedia(rec);
-        map.set(basic.id, basic); // Map dedupes by id
-      }
+      const basic = toBasicAnimeFromMedia(m);
+      map.set(basic.id, basic); // Map dedupes by id
     }
-
     return Array.from(map.values());
   }
 
-  const runRecommendations = () => {
+  // // 🔹 build candidates from AniList's recommendations field
+  // function buildCandidatesFromPicked(list: AnimeItem[]): BasicAnime[] {
+  //   const map = new Map<number, BasicAnime>();
+
+  //   for (const media of list) {
+  //     const edges = media.recommendations?.edges ?? [];
+
+  //     for (const edge of edges) {
+  //       const rec = edge.node?.mediaRecommendation;
+  //       if (!rec) continue;
+
+  //       // skip if it's one of the 5 favorites
+  //       if (list.some((p) => p.id === rec.id)) continue;
+
+  //       const basic = toBasicAnimeFromMedia(rec);
+  //       map.set(basic.id, basic); // Map dedupes by id
+  //     }
+  //   }
+
+  //   return Array.from(map.values());
+  // }
+
+  const runRecommendations = async () => {
   if (animeList.length !== 5) {
     alert("Please add exactly 5 anime first (you have " + animeList.length + ").");
     return;
   }
 
   const favorites = buildFavorites(animeList);
-  const candidates = buildCandidatesFromPicked(animeList);
+  // const candidates = buildCandidatesFromPool(animeList);
+  const pool = await fetchCandidatePool({ 
+    sorts: ["POPULARITY_DESC", "SCORE_DESC"], 
+    pagesPerSort: 2 
+  });
+
+  const candidates = buildCandidatesFromPool(pool, animeList);
 
   if (candidates.length === 0) {
     alert("AniList didn't return any recommendation candidates. Try different anime.");

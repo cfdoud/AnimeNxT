@@ -71,6 +71,7 @@ export default function HomePage() {
 
   function hasPrequel(media: any): boolean {
     const edges = media?.relations?.edges ?? [];
+    console.log("Checking prequels for media id", media.id, "edges:", edges);
     
     return edges.some(
       (e: any) => e?.relationType === "PREQUEL"

@@ -1,21 +1,48 @@
 import { useState } from "react";
 import type { Recommendation } from "../utils/recommender";
-import { Heart, HeartFill } from "react-bootstrap-icons"; 
+import { Heart, HeartFill, Nvidia, XLg } from "react-bootstrap-icons"; 
 interface ResultsProps {
   recommendations: Recommendation[];
 }
 
 export default function Results({ recommendations }: ResultsProps) {
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
-
+  const [visibleAnime, setVisibleAnime] = useState<Recommendation[]>(recommendations);
+  const [perished, setPerished] = useState<Recommendation[]>([]);
+  {/* Toggle favorite status for a recommendation and kill others*/}
   const toggleFavorite = (id: number) => {
-    setFavorites((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) newSet.delete(id);
-      else newSet.add(id);
-      return newSet;
+  setFavorites((prev) => {
+    const newSet = new Set(prev);
+
+    newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+
+    const oldFavs = Array.from(prev).filter((favId) => favId !== id);
+
+    console.log(
+      "Toggled favorite:",
+      id,
+      "New favorites set:",
+      newSet,
+      "Old favorites:",
+      oldFavs
+    );
+
+    return newSet;
     });
   };
+
+  const perishList = () => {
+    setVisibleAnime((prev) => {
+      const kept = prev.filter(r => favorites.has(r.anime.id));
+      const removedIds = prev.filter(r => !favorites.has(r.anime.id)).map(r => r.anime.id);
+      setPerished(p => new Set([...p, ...removedIds]));
+
+      const needed = prev.length - kept.length;
+      const replacements = recommendations.filter(r => !favorites.has(r.anime.id) && !removedIds.includes(r.anime.id)).slice(0, needed);
+      return [...kept, ...replacements];
+    });
+  };
+
 
   if (!recommendations.length) return null;
 
@@ -56,7 +83,7 @@ export default function Results({ recommendations }: ResultsProps) {
                 </div>
               </div>
 
-              {/* Favorite toggle */}
+              {/* Remove toggle */}
               <button
                 onClick={() => toggleFavorite(r.anime.id)}
                 className="p-1 rounded-full hover:bg-accentHover transition"
@@ -67,10 +94,17 @@ export default function Results({ recommendations }: ResultsProps) {
                   <Heart className="text-gray-400 dark:text-textSecondary w-5 h-5" />
                 )}
               </button>
+              
             </li>
           );
         })}
       </ul>
+      <button
+        onClick={() => perishList()}
+        className="mt-4 px-4 py-2 bg-gray-900 text-red-500 rounded hover:bg-gray-800 transition"
+        > 
+        Send to Filler Hell 🔥
+      </button>
     </div>
   );
 }

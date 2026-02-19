@@ -141,6 +141,7 @@ export default function HomePage() {
   const recs = recommendFromTop5(favorites, candidates, { limit: 10 });
   console.log("Recs:", recs);
   setRecommendations(recs);
+  return recs;
 };
 
 
@@ -175,7 +176,7 @@ export default function HomePage() {
 
           {/* RIGHT: recommendations */}
           <div className="bg-white rounded-xl shadow p-4 md:sticky md:top-6 h-fit">
-            <Results recommendations={recommendations} />
+            <Results recommendations={recommendations} onRecommend={runRecommendations} />
           </div>
         </div>
 

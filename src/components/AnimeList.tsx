@@ -22,6 +22,8 @@ interface Props {
   onRecommend: () => void;
 }
 
+
+
 function SortableAnimeItem({ anime, id }: { anime: AnimeItem; id: string }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 

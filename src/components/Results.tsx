@@ -1,47 +1,102 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Recommendation } from "../utils/recommender";
-import { Heart, HeartFill, Nvidia, XLg } from "react-bootstrap-icons"; 
+import { Heart, HeartFill, XLg } from "react-bootstrap-icons";
+import {getNewAnimeFromAlgorithm} from "../api/recommender";
 interface ResultsProps {
   recommendations: Recommendation[];
+  onRecommend: () => Promise<Recommendation[]>; // async fetch function
+
 }
 
-export default function Results({ recommendations }: ResultsProps) {
+
+
+export default function Results({ recommendations, onRecommend }: ResultsProps) {
+
+  const handSize = 5; // number of anime visible at once
+
+  // Internal state
+  const [deck, setDeck] = useState<Recommendation[]>([]);
+  const [visibleAnime, setVisibleAnime] = useState<Recommendation[]>([]);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [visibleAnime, setVisibleAnime] = useState<Recommendation[]>(recommendations);
-  const [perished, setPerished] = useState<Recommendation[]>([]);
-  {/* Toggle favorite status for a recommendation and kill others*/}
+  const [perished, setPerished] = useState<Set<number>>(new Set());
+  const [nextIndex, setNextIndex] = useState(0); // cursor into deck
+
+  // Initialize hand whenever recommendations change
+  useEffect(() => {
+    setDeck(recommendations);
+    setVisibleAnime(recommendations.slice(0, handSize));
+    setNextIndex(handSize);
+    setPerished(new Set());
+    setFavorites(new Set());
+  }, [recommendations]);
+
+
+
+  // Toggle favorite
   const toggleFavorite = (id: number) => {
-  setFavorites((prev) => {
-    const newSet = new Set(prev);
-
-    newSet.has(id) ? newSet.delete(id) : newSet.add(id);
-
-    const oldFavs = Array.from(prev).filter((favId) => favId !== id);
-
-    console.log(
-      "Toggled favorite:",
-      id,
-      "New favorites set:",
-      newSet,
-      "Old favorites:",
-      oldFavs
-    );
-
-    return newSet;
+    setFavorites(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
     });
   };
 
-  const perishList = () => {
-    setVisibleAnime((prev) => {
-      const kept = prev.filter(r => favorites.has(r.anime.id));
-      const removedIds = prev.filter(r => !favorites.has(r.anime.id)).map(r => r.anime.id);
-      setPerished(p => new Set([...p, ...removedIds]));
+  // Get next unseen anime from the deck
+  const getNextUnseen = async (needed: number, currentVisible: Recommendation[]) => {
+    const newItems: Recommendation[] = [];
+    let cursor = nextIndex;
 
-      const needed = prev.length - kept.length;
-      const replacements = recommendations.filter(r => !favorites.has(r.anime.id) && !removedIds.includes(r.anime.id)).slice(0, needed);
-      return [...kept, ...replacements];
-    });
+    while (newItems.length < needed) {
+      if (cursor >= deck.length) {
+        // Deck exhausted → fetch more
+        const newRecs = await onRecommend();
+        if (!Array.isArray(newRecs) || newRecs.length === 0) break; // stop if nothing returned
+        setDeck(prev => [...prev, ...newRecs]);
+      }
+
+      const candidate = deck[cursor];
+      if (!candidate) break; // safety check
+
+      if (!perished.has(candidate.anime.id) &&
+          !currentVisible.some(v => v.anime.id === candidate.anime.id)) {
+        newItems.push(candidate);
+      }
+      cursor++;
+    }
+
+    setNextIndex(cursor);
+    return newItems;
   };
+
+
+
+  // Slash single anime
+const slashAnime = async (id: number) => {
+  // Remove the slashed anime
+  const remaining = visibleAnime.filter(r => r.anime.id !== id);
+
+  // Add to perished
+  setPerished(p => new Set([...p, id]));
+
+  // Fetch 1 replacement from deck (or fetch more if deck is empty)
+  const replacements = await getNextUnseen(1, remaining);
+
+  // Update visibleAnime with new hand
+  setVisibleAnime([...remaining, ...replacements]);
+};
+
+
+  // Heart list (keep favorites, replace others)
+  const heartList = async () => {
+    const kept = visibleAnime.filter(r => favorites.has(r.anime.id));
+    const removedIds = visibleAnime.filter(r => !favorites.has(r.anime.id)).map(r => r.anime.id);
+    setPerished(p => new Set([...p, ...removedIds]));
+
+    const replacements = await getNextUnseen(visibleAnime.length - kept.length, kept);
+
+    setVisibleAnime([...kept, ...replacements]);
+  };
+
 
 
   if (!recommendations.length) return null;
@@ -52,7 +107,7 @@ export default function Results({ recommendations }: ResultsProps) {
         Recommended for you:
       </h3>
       <ul className="list-none flex flex-col gap-4">
-        {recommendations.map((r) => {
+        {visibleAnime.map(r => {
           const titleText =
             typeof r.anime.title === "string"
               ? r.anime.title
@@ -83,26 +138,35 @@ export default function Results({ recommendations }: ResultsProps) {
                 </div>
               </div>
 
-              {/* Remove toggle */}
-              <button
-                onClick={() => toggleFavorite(r.anime.id)}
-                className="p-1 rounded-full hover:bg-accentHover transition"
-              >
-                {isFavorite ? (
-                  <HeartFill className="text-error w-5 h-5" />
-                ) : (
-                  <Heart className="text-gray-400 dark:text-textSecondary w-5 h-5" />
-                )}
-              </button>
-              
+              {/* Actions */}
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => toggleFavorite(r.anime.id)}
+                  className="p-1 rounded-full hover:bg-accentHover transition"
+                >
+                  {isFavorite ? (
+                    <HeartFill className="text-red-500 w-5 h-5" />
+                  ) : (
+                    <Heart className="text-gray-400 dark:text-textSecondary w-5 h-5" />
+                  )}
+                </button>
+
+                <button
+                  onClick={() => slashAnime(r.anime.id)}
+                  className="px-2 py-1 bg-gray-900 text-red-500 rounded hover:bg-gray-800 transition"
+                >
+                  <XLg className="w-5 h-5" />
+                </button>
+              </div>
             </li>
           );
         })}
       </ul>
+
       <button
-        onClick={() => perishList()}
+        onClick={() => heartList()}
         className="mt-4 px-4 py-2 bg-gray-900 text-red-500 rounded hover:bg-gray-800 transition"
-        > 
+      >
         Send to Filler Hell 🔥
       </button>
     </div>

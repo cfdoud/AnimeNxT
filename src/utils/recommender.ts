@@ -181,11 +181,11 @@ export function recommendFromTop5(
     0
   );
 
-  // used to normalize favSim if we want
-  const totalRankWeight = favorites.reduce(
-    (sum, f) => sum + RANK_WEIGHTS[f.rank],
-    0
-  );
+  // // used to normalize favSim if we want
+  // const totalRankWeight = favorites.reduce(
+  //   (sum, f) => sum + RANK_WEIGHTS[f.rank],
+  //   0
+  // );
 
   const results: Recommendation[] = [];
 

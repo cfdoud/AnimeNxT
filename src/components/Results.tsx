@@ -129,6 +129,7 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
 
   const [visibleAnime, setVisibleAnime] = useState<Recommendation[]>([]);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const favoritesRef = useRef<Set<number>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
 
   const deckRef = useRef<Recommendation[]>([]);
@@ -144,9 +145,10 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
   }, [recommendations]);
 
   const toggleFavorite = (id: number) => {
-    setFavorites((prev) => {
+    setFavorites(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
+      favoritesRef.current = next;
       return next;
     });
   };
@@ -189,9 +191,9 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
   const heartList = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
-    const kept = visibleAnime.filter((r) => favorites.has(r.anime.id));
+    const kept = visibleAnime.filter((r) => favoritesRef.current.has(r.anime.id));
     const removedIds = visibleAnime
-      .filter((r) => !favorites.has(r.anime.id))
+      .filter((r) => !favoritesRef.current.has(r.anime.id))
       .map((r) => r.anime.id);
     perishedRef.current = new Set([...perishedRef.current, ...removedIds]);
     const replacements = await getNextUnseen(visibleAnime.length - kept.length, kept);
@@ -201,7 +203,7 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
 
   if (!recommendations.length) return null;
 
-  const favoriteCount = visibleAnime.filter((r) => favorites.has(r.anime.id)).length;
+  const favoriteCount = visibleAnime.filter((r) => favoritesRef.current.has(r.anime.id)).length;
 
   return (
     <div className="w-full">
@@ -210,7 +212,7 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
           <AnimeCard
             key={r.anime.id}
             rec={r}
-            isFavorite={favorites.has(r.anime.id)}
+            isFavorite={favoritesRef.current.has(r.anime.id)}
             onFavorite={() => toggleFavorite(r.anime.id)}
             onSlash={() => slashAnime(r.anime.id)}
             disabled={isProcessing}

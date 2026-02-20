@@ -128,7 +128,7 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
   const handSize = 5;
 
   const [visibleAnime, setVisibleAnime] = useState<Recommendation[]>([]);
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  // const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const favoritesRef = useRef<Set<number>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -140,17 +140,18 @@ export default function Results({ recommendations, onRecommend }: ResultsProps) 
     deckRef.current = recommendations;
     nextIndexRef.current = handSize;
     perishedRef.current = new Set();
-    setFavorites(new Set());
+    favoritesRef.current = new Set();
     setVisibleAnime(recommendations.slice(0, handSize));
   }, [recommendations]);
 
   const toggleFavorite = (id: number) => {
-    setFavorites(prev => {
+    (prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       favoritesRef.current = next;
       return next;
-    });
+    })(favoritesRef.current);
+
   };
 
   const getNextUnseen = async (needed: number, currentVisible: Recommendation[]) => {

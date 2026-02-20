@@ -15,7 +15,7 @@ export type AnimeItem = AniListMedia;
 
 export default function HomePage() {
   const [animeList, setAnimeList] = useState<AnimeItem[]>([]);
-  const [answers, setAnswers] = useState<{ [anime: string]: string }>({});
+  // const [answers, setAnswers] = useState<{ [anime: string]: string }>({});
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [candidatePool, setCandidatePool] = useState<BasicAnime[]>([]);
   const [seenIds, setSeenIds] = useState<Set<number>>(new Set());

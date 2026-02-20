@@ -199,7 +199,7 @@ export function recommendFromTop5(
     }
 
     // (optional normalized similarity if you ever need it)
-    const favSimNorm = favSim / (totalRankWeight || 1);
+    // const favSimNorm = favSim / (totalRankWeight || 1);
 
     // --- how well it matches overall taste profile ---
     const tasteSim = tasteSimilarity(c, taste);

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { AniListMedia } from "../types";
 
 interface Props {

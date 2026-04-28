@@ -56,6 +56,7 @@ function buildTasteProfile(favorites: RankedFavorite[]): TasteProfile {
     const rank = fav.rank;
     const w = RANK_WEIGHTS[rank];
     const anime = fav.anime;
+    console.log("Anime genres:", anime.genres, "tags:", anime.tags?.slice?.(0, 5));
 
     console.log("──────────────");
     console.log(
@@ -180,11 +181,11 @@ export function recommendFromTop5(
     0
   );
 
-  // used to normalize favSim if we want
-  const totalRankWeight = favorites.reduce(
-    (sum, f) => sum + RANK_WEIGHTS[f.rank],
-    0
-  );
+  // // used to normalize favSim if we want
+  // const totalRankWeight = favorites.reduce(
+  //   (sum, f) => sum + RANK_WEIGHTS[f.rank],
+  //   0
+  // );
 
   const results: Recommendation[] = [];
 
@@ -198,7 +199,7 @@ export function recommendFromTop5(
     }
 
     // (optional normalized similarity if you ever need it)
-    const favSimNorm = favSim / (totalRankWeight || 1);
+    // const favSimNorm = favSim / (totalRankWeight || 1);
 
     // --- how well it matches overall taste profile ---
     const tasteSim = tasteSimilarity(c, taste);

@@ -8,7 +8,7 @@ Helps you find what anime to watch next
 
 ![AnimeNxT Screenshot](./screenshot.png)
 
-**[Live Demo](https://animenxt.vercel.app)** · **[GitHub](https://github.com/cfdoud/AnimeNxT)**
+**[Live Demo](https://anime-nxt.vercel.app)** · **[GitHub](https://github.com/cfdoud/AnimeNxT)**
 
 ---
 
